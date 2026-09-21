@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DSA Forge — Topic-wise Problem Solving Quiz</title>
+  <meta name="description" content="A topic-wise, level-wise DSA quiz and problem-solving trainer with hints, solutions and progress tracking." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">DS</div>
+        <div>
+          <div class="brand-title">DSA Forge</div>
+          <div class="brand-subtitle">Understand → Solve → Explain</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="themeBtn" class="icon-btn" title="Toggle theme">☼</button>
+        <button id="resetBtn" class="ghost-btn">Reset progress</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="dashboardView">
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">INTERVIEW + FOUNDATIONS</span>
+            <h1>Train DSA like a skill, not a checklist.</h1>
+            <p>Work through concepts, traces, complexity, design choices and coding problems. Every question has staged hints and a teach-back solution.</p>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-number" id="heroSolved">0</div>
+            <div class="stat-label">solved</div>
+            <div class="hero-progress"><span id="heroProgressBar"></span></div>
+            <div class="muted" id="heroProgressText">0% of pool</div>
+          </div>
+        </div>
+
+        <div class="control-panel">
+          <div class="control-group">
+            <label>Topic</label>
+            <select id="topicFilter"></select>
+          </div>
+          <div class="control-group">
+            <label>Level</label>
+            <select id="levelFilter">
+              <option value="all">All levels</option>
+              <option value="foundation">Foundation</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Question type</label>
+            <select id="typeFilter">
+              <option value="all">All types</option>
+              <option value="mcq">MCQ</option>
+              <option value="trace">Trace / Output</option>
+              <option value="complexity">Complexity</option>
+              <option value="design">Data-structure choice</option>
+              <option value="coding">Coding / Algorithm</option>
+              <option value="debug">Debug / Reasoning</option>
+            </select>
+          </div>
+          <div class="control-group action-group">
+            <label>&nbsp;</label>
+            <button id="startBtn" class="primary-btn">Start quiz</button>
+          </div>
+        </div>
+
+        <div class="forge-tools">
+          <button id="codingModeBtn" class="forge-tool active"><span>⌘</span><strong>Coding Lab</strong><small>Write code → visible tests → hidden tests</small></button>
+          <button id="reviewModeBtn" class="forge-tool"><span>↻</span><strong>Review queue</strong><small>Spaced repetition for weak concepts</small></button>
+          <button id="masteryModeBtn" class="forge-tool"><span>◆</span><strong>Mastery map</strong><small>Topic gates and skill evidence</small></button>
+        </div>
+
+        <div class="quick-grid">
+          <button class="mode-card" data-level="foundation">
+            <span class="mode-kicker">WARM UP</span>
+            <strong>Foundations</strong>
+            <span>Complexity, invariants, DS selection</span>
+          </button>
+          <button class="mode-card" data-level="easy">
+            <span class="mode-kicker">BUILD</span>
+            <strong>Easy</strong>
+            <span>Core patterns with low friction</span>
+          </button>
+          <button class="mode-card" data-level="medium">
+            <span class="mode-kicker">STRETCH</span>
+            <strong>Medium</strong>
+            <span>Multi-step reasoning and pattern recognition</span>
+          </button>
+          <button class="mode-card" data-level="hard">
+            <span class="mode-kicker">MASTER</span>
+            <strong>Hard</strong>
+            <span>Proofs, tradeoffs and composite patterns</span>
+          </button>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">CURRICULUM</span>
+            <h2>Topic map</h2>
+          </div>
+          <span class="pill" id="topicCount"></span>
+        </div>
+        <div id="topicGrid" class="topic-grid"></div>
+      </section>
+
+      <section id="codingView" class="hidden">
+        <div class="quiz-top">
+          <button id="codingBackBtn" class="ghost-btn">← Dashboard</button>
+          <div class="quiz-progress-wrap">
+            <div class="quiz-meta"><span id="codingCounter">Coding problem</span><span id="codingVerdict">Not submitted</span></div>
+            <div class="progress-track"><span id="codingProgress"></span></div>
+          </div>
+          <button id="codingNextBtn" class="ghost-btn">Next problem →</button>
+        </div>
+        <div class="coding-layout">
+          <article class="coding-card">
+            <div class="question-badges"><span class="badge" id="codingTopic"></span><span class="badge level" id="codingLevel"></span><span class="badge type">CODE</span></div>
+            <h1 id="codingTitle"></h1><div id="codingPrompt" class="coding-prompt"></div>
+            <div class="constraints" id="codingConstraints"></div>
+            <div class="editor-toolbar"><span>JavaScript</span><div><button id="resetCodeBtn" class="ghost-btn mini-btn">Reset</button><button id="runVisibleBtn" class="secondary-btn mini-btn">Run visible</button><button id="submitHiddenBtn" class="primary-btn mini-btn">Submit hidden</button></div></div>
+            <textarea id="codeEditor" spellcheck="false"></textarea>
+            <div id="testPanel" class="test-panel"></div>
+            <div id="judgePanel" class="judge-panel hidden"></div>
+            <div class="coding-lower">
+              <div class="complexity-card"><span class="eyebrow">COMPLEXITY</span><h3>What does your code look like?</h3><p id="complexityResult" class="muted">Run hidden tests to get an empirical estimate plus a code-structure heuristic.</p></div>
+              <div class="mastery-card"><span class="eyebrow">MASTERY GATE</span><h3 id="codingGateTitle">Not yet assessed</h3><p id="codingGateText" class="muted">Pass correctness and demonstrate the expected complexity to strengthen this topic.</p></div>
+            </div>
+          </article>
+          <aside class="side-card coding-side">
+            <div class="side-head">Problem thinking</div>
+            <div class="model-row"><span class="mini-label">Pattern</span><strong id="codingPattern">—</strong></div>
+            <div class="model-row"><span class="mini-label">Hint</span><strong id="codingHint">—</strong></div>
+            <div class="side-section"><span class="mini-label">Weakness signal</span><p id="codingWeakness" class="side-note">Submit attempts build your topic profile.</p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="reviewView" class="hidden">
+        <div class="section-head"><div><span class="eyebrow">SPACED REVIEW</span><h2>What needs another rep?</h2></div><button id="reviewBackBtn" class="ghost-btn">← Dashboard</button></div>
+        <div id="reviewStats" class="review-stats"></div><div id="reviewList" class="review-list"></div>
+      </section>
+
+      <section id="masteryView" class="hidden">
+        <div class="section-head"><div><span class="eyebrow">MASTERY</span><h2>Topic gates</h2><p class="muted">A topic is only “mastered” when performance is consistent, not when one question is solved.</p></div><button id="masteryBackBtn" class="ghost-btn">← Dashboard</button></div>
+        <div id="masteryList" class="mastery-list"></div>
+      </section>
+
+      <section id="quizView" class="hidden">
+        <div class="quiz-top">
+          <button id="backBtn" class="ghost-btn">← Dashboard</button>
+          <div class="quiz-progress-wrap">
+            <div class="quiz-meta">
+              <span id="quizCounter">Question 1</span>
+              <span id="quizScore">Score 0</span>
+            </div>
+            <div class="progress-track"><span id="quizProgress"></span></div>
+          </div>
+          <button id="skipBtn" class="ghost-btn">Skip</button>
+        </div>
+
+        <div class="question-layout">
+          <article class="question-card">
+            <div class="question-badges">
+              <span class="badge" id="qTopic"></span>
+              <span class="badge level" id="qLevel"></span>
+              <span class="badge type" id="qType"></span>
+            </div>
+            <h2 id="qTitle"></h2>
+            <div id="qBody" class="question-body"></div>
+            <pre id="qCode" class="code-block hidden"></pre>
+
+            <div id="options" class="options"></div>
+            <div id="answerInputWrap" class="answer-input-wrap hidden">
+              <textarea id="answerInput" placeholder="Write your approach or answer here…"></textarea>
+              <div class="muted small">For open-ended questions, submit your reasoning first; then compare against the reference solution.</div>
+            </div>
+
+            <div class="question-actions">
+              <button id="hintBtn" class="secondary-btn">Show hint 1</button>
+              <button id="submitBtn" class="primary-btn">Submit</button>
+            </div>
+
+            <div id="hintBox" class="hint-box hidden"></div>
+            <div id="feedback" class="feedback hidden"></div>
+            <div id="solutionBox" class="solution-box hidden">
+              <div class="solution-head">
+                <div>
+                  <span class="eyebrow">REFERENCE SOLUTION</span>
+                  <h3>How to think about it</h3>
+                </div>
+                <button id="copySolutionBtn" class="icon-btn" title="Copy solution">⧉</button>
+              </div>
+              <div id="solutionContent"></div>
+            </div>
+          </article>
+
+          <aside class="side-card">
+            <div class="side-head">Session map</div>
+            <div id="sessionMap" class="session-map"></div>
+            <div class="side-section">
+              <div class="mini-label">Scoring</div>
+              <div class="scoring-rule"><span>First-try correct</span><strong>+1</strong></div>
+              <div class="scoring-rule"><span>Correct after hint</span><strong>+0.5</strong></div>
+              <div class="scoring-rule"><span>Reveal solution</span><strong>0</strong></div>
+            </div>
+            <div class="side-section">
+              <div class="mini-label">Skill lens</div>
+              <p class="side-note" id="skillLens">Read the problem twice. Identify constraints before choosing a pattern.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="resultsView" class="hidden">
+        <div class="results-card">
+          <span class="eyebrow">SESSION COMPLETE</span>
+          <h1 id="resultsTitle">Nice run.</h1>
+          <p id="resultsSubtitle"></p>
+          <div class="results-grid">
+            <div class="result-stat"><span>Score</span><strong id="resultScore">0</strong></div>
+            <div class="result-stat"><span>Accuracy</span><strong id="resultAccuracy">0%</strong></div>
+            <div class="result-stat"><span>Questions</span><strong id="resultCount">0</strong></div>
+          </div>
+          <div class="result-actions">
+            <button id="retryBtn" class="primary-btn">Retry session</button>
+            <button id="resultDashBtn" class="ghost-btn">Back to dashboard</button>
+          </div>
+        </div>
+        <div class="results-card">
+          <div class="section-head compact">
+            <div>
+              <span class="eyebrow">BY TOPIC</span>
+              <h2>Where you stand</h2>
+            </div>
+          </div>
+          <div id="resultTopicList" class="result-topic-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>DSA Forge · Local-first learning app · Progress stored in your browser</footer>
+  </div>
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
